@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ThermoSense 152022153 - Real-Time Data Monitoring</title>
+    <style>
+        /* Reset dasar */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Latar Belakang Global */
+        body {
+            font-family: 'Arial', sans-serif;
+            background: url('https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzNjUyOXwwfDF8c2VhcmNofDJ8fG1vdW50YWlufGVufDB8fHx8MTY4Mjc5NjcyOA&ixlib=rb-4.0.3&q=80&w=1080') no-repeat center center;
+            background-size: cover;
+            background-attachment: fixed;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px;
+            color: #fff;
+        }
+
+        /* Judul */
+        h1 {
+            font-size: 3rem;
+            color: #ffffff;
+            margin-bottom: 50px;
+            text-align: center;
+            text-shadow: 0 4px 10px rgba(0, 0, 0, 0.7);
+            animation: fadeInDown 1s ease forwards;
+        }
+
+        /* Wrapper untuk kolom-kolom data */
+        .data-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            max-width: 1400px;
+            width: 100%;
+        }
+
+        /* Gaya untuk setiap kolom data */
+        .data-card {
+            background: linear-gradient(135deg, #4a90e2, #3b6bb2);
+            color: #fff;
+            border-radius: 15px;
+            padding: 25px;
+            width: 320px;
+            min-height: 350px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            text-align: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Efek hover untuk kolom data */
+        .data-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Gaya untuk judul dalam kolom */
+        .data-card h2 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: #fff;
+            font-weight: 700;
+            transition: color 0.3s;
+        }
+
+        .data-card p {
+            font-size: 1.1rem;
+            color: #fff;
+            margin: 15px 0;
+            font-weight: 500;
+            line-height: 1.5;
+        }
+
+        .data-card ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .data-card li {
+            background: rgba(255, 255, 255, 0.2);
+            margin: 8px 0;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 1rem;
+            color: #fff;
+            transition: background-color 0.3s ease;
+        }
+
+        .data-card li:hover {
+            background-color: rgba(255, 255, 255, 0.4);
+        }
+
+        /* Animasi Fade In */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsif untuk layar lebih kecil */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .data-card {
+                width: 100%;
+                max-width: 360px;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>ThermoSense 152022153 - Real-Time Monitoring</h1>
+
+    <div class="data-container">
+        <div class="data-card" id="suhu-info">
+            <h2>Informasi Suhu</h2>
+            <p><strong>Suhu Maksimum:</strong> <span id="suhu_max"></span> °C</p>
+            <p><strong>Suhu Minimum:</strong> <span id="suhu_min"></span> °C</p>
+            <p><strong>Suhu Rata-rata:</strong> <span id="suhu_rate"></span> °C</p>
+        </div>
+
+        <div class="data-card" id="nilai-suhu-list">
+            <h2>Detail Nilai Suhu & Kelembaban Maksimum</h2>
+            <ul id="nilai_suhu_max_humid_max"></ul>
+        </div>
+
+        <div class="data-card" id="month-year-info">
+            <h2>Informasi Bulan & Tahun Maksimum</h2>
+            <ul id="month_year_max"></ul>
+        </div>
+    </div>
+
+    <script>
+        // Mengambil data JSON dari backend Flask
+        fetch('http://127.0.0.1:5000/data')
+            .then(response => response.json())
+            .then(data => {
+                // Menampilkan data suhu
+                document.getElementById('suhu_max').textContent = data.suhu_max;
+                document.getElementById('suhu_min').textContent = data.suhu_min;
+                document.getElementById('suhu_rate').textContent = data.suhu_rate;
+
+                // Menampilkan data nilai_suhu_max_humid_max
+                const nilaiSuhuList = document.getElementById('nilai_suhu_max_humid_max');
+                data.nilai_suhu_max_humid_max.forEach(item => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `ID: ${item.idx}, Suhu: ${item.suhu} °C, Humid: ${item.humid} %, Kecerahan: ${item.kecerahan}, Timestamp: ${item.timestamp}`;
+                    nilaiSuhuList.appendChild(listItem);
+                });
+
+                // Menampilkan data month_year_max
+                const monthYearList = document.getElementById('month_year_max');
+                data.month_year_max.forEach(item => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `Month-Year: ${item.month_year}`;
+                    monthYearList.appendChild(listItem);
+                });
+            })
+            .catch(error => console.error('Error fetching data:', error));
+    </script>
+
+</body>
+</html>
